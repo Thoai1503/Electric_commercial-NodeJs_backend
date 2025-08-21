@@ -43,15 +43,20 @@ module.exports = class AuthController {
 
   sendTokenResponse = (user, statusCode, res) => {
     const token = user.generateAuthToken();
-    res.status(statusCode).json({
-      success: true,
-      token,
-      user: {
-        id: user.id,
-        name: user.name,
-        email: user.email,
-        role: user.role,
-      },
-    });
+    res
+      .status(statusCode)
+      .cookie("tooken", token)
+
+      .json({
+        success: true,
+        token,
+        user: {
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+        },
+      });
   };
 };
+1;
