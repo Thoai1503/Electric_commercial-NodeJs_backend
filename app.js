@@ -7,6 +7,7 @@ const connectDB = require("./db/MongoDb");
 const { getPool } = require("./db/MssqlDb");
 const app = express();
 const authRouter = require("./router/auth");
+const userRouter = require("./router/user");
 
 const cors = require("cors");
 
@@ -19,6 +20,8 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 
 app.use("/api/v1/auth", authRouter);
+app.use("/api/v1/user", userRouter);
+
 getPool()
   .then(() => {
     console.log("MSSQL Database connected successfully");
