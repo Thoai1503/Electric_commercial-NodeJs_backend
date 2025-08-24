@@ -8,6 +8,7 @@ const { getPool } = require("./db/MssqlDb");
 const app = express();
 const authRouter = require("./router/auth");
 const userRouter = require("./router/user");
+const brandRouter = require("./router/brand");
 
 const cors = require("cors");
 
@@ -21,6 +22,7 @@ app.use(morgan("dev"));
 
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);
+app.use("/api/v1/brand", brandRouter);
 
 getPool()
   .then(() => {

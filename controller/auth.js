@@ -13,7 +13,7 @@ module.exports = class AuthController {
 
       if (!user || !(await user.comparePassword(password))) {
         return res
-          .status(401)
+          .status(404)
           .json({ message: "Invalid credentials", success: false });
       }
 
