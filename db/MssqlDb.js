@@ -1,9 +1,12 @@
-const sql = require("mssql");
 const dotenv = require("dotenv");
-dotenv.config({ path: "./config/config.env" });
+
+dotenv.config({ path: "../config/config.env" });
+
+const sql = require("mssql");
+
 const DBConnect = {
   user: "John333_SQLLogin_1",
-  password: "1etw5yoon4",
+  password: process.env.PASSWORD,
   server: "Catalog_ElectricStoreDB.mssql.somee.com",
   database: "Catalog_ElectricStoreDB",
 
