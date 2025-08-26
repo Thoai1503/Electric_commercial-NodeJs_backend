@@ -5,10 +5,10 @@ dotenv.config({ path: "../config/config.env" });
 const sql = require("mssql");
 
 const DBConnect = {
-  user: "John333_SQLLogin_1",
+  user: process.env.USER,
   password: process.env.PASSWORD,
-  server: "Catalog_ElectricStoreDB.mssql.somee.com",
-  database: "Catalog_ElectricStoreDB",
+  server: process.env.DB_SERVER,
+  database: process.env.DB,
 
   port: 1433,
   options: {
