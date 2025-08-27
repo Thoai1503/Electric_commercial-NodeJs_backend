@@ -9,6 +9,7 @@ const app = express();
 const authRouter = require("./router/auth");
 const userRouter = require("./router/user");
 const brandRouter = require("./router/brand");
+const categoryRouter = require("./router/category");
 
 const cors = require("cors");
 
@@ -23,6 +24,7 @@ app.use(morgan("dev"));
 app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/brand", brandRouter);
+app.use("/api/v1/category", categoryRouter);
 
 getPool()
   .then(() => {

@@ -1,18 +1,18 @@
 module.exports = class Category {
   id = 0;
   name = "";
+  parent_id = "";
+  path = "";
+  level = 0;
   slug = "";
-  status = 1;
-  static USER_TABLE = "brand";
-  static ID_COLUMN = "id";
-  static NAME_COLUMN = "name";
-  static SLUG_COLUMN = "slug";
-  static STATUS_COLUMN = "status";
-  constructor(id, name, slug, status) {
+
+  constructor(id, name, parent_id = 0, path = "", level = 0, slug = "") {
     this.id = id;
     this.name = name;
     this.slug = slug;
-    this.status = status;
+    this.parent_id = parent_id;
+    this.path = path;
+    this.level = level;
   }
   getId() {
     return this.id;
@@ -32,10 +32,16 @@ module.exports = class Category {
   setSlug(slug) {
     this.slug = slug;
   }
-  getStatus() {
-    return this.status;
+  getParentId() {
+    return this.parent_id;
   }
-  setStatus(status) {
-    this.status = status;
+  setParentId(parent_id) {
+    this.parent_id = parent_id;
+  }
+  getPath() {
+    return this.path;
+  }
+  setPath(path) {
+    this.path = path;
   }
 };

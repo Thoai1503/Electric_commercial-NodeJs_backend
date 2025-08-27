@@ -9,6 +9,5 @@ const brandRepository = new BrandRepository();
 const brandController = new BrandController(brandRepository);
 
 router.route("/").post(brandController.createBrand);
-//router.post("/", brandController.createBrand);
 
 module.exports = router;
