@@ -8,11 +8,33 @@ module.exports = class CategoryController {
     this.categoryService = new CategoryService();
   }
   create = async (req, res, next) => {
-    const { name, parent_id } = req.body;
-    const category = new Category(0, name, parent_id);
-    const result = await this.categoryService.createCategory(category);
-    return res.json(result);
+    try {
+      const { name, parent_id } = req.body;
+
+      // validate đơn giản
+      if (!name) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Name is required" });
+      }
+
+      const category = new Category(0, name, parent_id);
+      const result = await this.categoryService.createCategory(category);
+
+      return res.status(201).json({
+        success: true,
+        data: result, // có thể là object category vừa tạo
+      });
+    } catch (error) {
+      console.error("Error creating category:", error);
+      return res.status(500).json({
+        success: false,
+        message: "Internal Server Error",
+        error: error.message,
+      });
+    }
   };
+
   delete = async (req, res, next) => {
     const { id } = req.params;
     console.log("Deleted id:" + id);
