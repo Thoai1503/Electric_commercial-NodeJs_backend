@@ -16,7 +16,15 @@ const cors = require("cors");
 const morgan = require("morgan");
 const path = require("path");
 
-app.use(cors());
+app.use(
+  cors({
+    origin: [
+      "http://localhost:5173",
+      "https://electric-commercial.vercel.app/",
+    ],
+    credentials: true, // allow cookie/credentials entry
+  })
+);
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
