@@ -14,4 +14,15 @@ module.exports = class CategoryService {
       return false;
     }
   };
+  deleteCategory = async (id) => {
+    return await axios
+      .delete(this.endPoint + `api/category/${id}`)
+      .then((res) => {
+        return res.data;
+      })
+      .catch((error) => {
+        console.error("Lỗi khi xoá category:", error.message);
+        return false;
+      });
+  };
 };
