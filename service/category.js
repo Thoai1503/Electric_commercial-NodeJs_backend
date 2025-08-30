@@ -11,7 +11,7 @@ module.exports = class CategoryService {
       return result.data;
     } catch (error) {
       console.log("Error :" + error.message);
-      return false;
+      throw error;
     }
   };
   deleteCategory = async (id) => {
