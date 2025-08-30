@@ -18,9 +18,7 @@ const path = require("path");
 
 app.use(
   cors({
-    origin: [
-      "http://localhost:5173",
-      "https://electric-commercial.vercel.app/",
+    origin: ["*"
     ],
     credentials: true, // allow cookie/credentials entry
   })
