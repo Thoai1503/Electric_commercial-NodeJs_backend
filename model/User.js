@@ -71,22 +71,26 @@ module.exports = class User {
   }
 
   async hashPassword() {
-    const salt = await bcrypt.genSalt(10);
-    this.password = await bcrypt.hash(this.password, salt);
+    const passwordService = require('../service/passwordService');
+    this.password = await passwordService.hashPassword(this.password);
   }
+  
   async comparePassword(password) {
-    return await bcrypt.compare(password, this.password.trim());
+    const passwordService = require('../service/passwordService');
+    return await passwordService.comparePassword(password, this.password.trim());
   }
 
   generateAuthToken() {
-    const token = jwt.sign(
-      { id: this.id, email: this.email },
-      "hhj4h545h4j5hj45h5j4h545",
-      {
-        expiresIn: "1h",
-      }
-    );
-    return token;
+    const jwtService = require('../service/jwtService');
+    const payload = {
+      id: this.id,
+      email: this.email,
+      role: this.role,
+      status: this.status
+    };
+    
+    const tokens = jwtService.generateTokens(payload);
+    return tokens;
   }
   static getUserTable() {
     return this.USER_TABLE;

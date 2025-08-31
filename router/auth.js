@@ -3,11 +3,18 @@ var router = express.Router();
 
 const AuthController = require("../controller/auth");
 const UserRepository = require("../repository/user");
+const authMiddleware = require("../middleware/checkToken");
 
 const userRepository = new UserRepository();
 const authController = new AuthController(userRepository);
 
-router.post("/login", authController.login);
-router.post("/register", authController.register);
+// Public routes
+router.post("/login", authMiddleware.logAuthAttempt, authController.login);
+router.post("/register", authMiddleware.logAuthAttempt, authController.register);
+router.post("/refresh-token", authMiddleware.validateRefreshToken, authController.refreshToken);
+
+// Protected routes
+router.post("/logout", authMiddleware.authenticateToken, authController.logout);
+router.get("/profile", authMiddleware.authenticateToken, authController.getProfile);
 
 module.exports = router;

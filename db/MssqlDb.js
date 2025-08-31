@@ -1,24 +1,45 @@
 const dotenv = require("dotenv");
+const path = require("path");
 
-dotenv.config({ path: "../config/config.env" });
+// Load environment variables from the correct path
+dotenv.config({ path: path.join(__dirname, "../config/config.env") });
 
 const sql = require("mssql");
+
+// Debug environment variables
+console.log('Environment variables:');
+console.log('USER:', process.env.USER);
+console.log('PASSWORD:', process.env.PASSWORD ? '***' : 'undefined');
+console.log('DB_SERVER:', process.env.DB_SERVER);
+console.log('DB:', process.env.DB);
 
 const DBConnect = {
   user: process.env.USER,
   password: process.env.PASSWORD,
   server: process.env.DB_SERVER,
   database: process.env.DB,
-
-  port: 1433,
+  port: parseInt(process.env.DB_PORT) || 1433,
   options: {
     encrypt: true,
     trustServerCertificate: true,
     trustedconnection: true,
-
     enableArithAbort: true,
   },
 };
+
+// Validate required configuration
+if (!DBConnect.server) {
+  throw new Error('DB_SERVER environment variable is required');
+}
+if (!DBConnect.user) {
+  throw new Error('USER environment variable is required');
+}
+if (!DBConnect.password) {
+  throw new Error('PASSWORD environment variable is required');
+}
+if (!DBConnect.database) {
+  throw new Error('DB environment variable is required');
+}
 
 // Create a single pool (best practice)
 let pool;
