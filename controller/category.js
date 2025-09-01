@@ -34,6 +34,22 @@ module.exports = class CategoryController {
       });
     }
   };
+  update = async (req, res, next) => {
+    const { name, parent_id } = req.body;
+    const id = parseInt(req.params.id, 10);
+    const category = new Category(id, name, parent_id);
+    var result = await this.categoryService.updateCategory(category);
+    if (!result) {
+      return res.status(404).json({
+        success: result,
+        message: "Can't update or not found the result",
+      });
+    }
+    return res.status(201).json({
+      success: true,
+      message: "Update successfully!",
+    });
+  };
 
   delete = async (req, res, next) => {
     const { id } = req.params;

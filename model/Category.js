@@ -6,7 +6,7 @@ module.exports = class Category {
   level = 0;
   slug = "";
 
-  constructor(id, name, parent_id = 0, path = "", level = 0, slug = "") {
+  constructor(id, name, parent_id = 0, path = "abc", level = 0, slug = "abc") {
     this.id = id;
     this.name = name;
     this.slug = slug;

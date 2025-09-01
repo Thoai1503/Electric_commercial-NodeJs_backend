@@ -14,6 +14,21 @@ module.exports = class CategoryService {
       throw error;
     }
   };
+  updateCategory = async (cate) => {
+    try {
+      const result = await axios.post(
+        this.endPoint + `api/category/${cate?.id}`,
+        cate,
+        {
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      return result.data;
+    } catch (error) {
+      console.log("Error :" + error.message);
+      throw error;
+    }
+  };
   deleteCategory = async (id) => {
     return await axios
       .delete(this.endPoint + `api/category/${id}`)
