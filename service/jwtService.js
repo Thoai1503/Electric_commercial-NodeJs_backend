@@ -29,8 +29,17 @@ class JWTService {
 
   // Generate both tokens
   generateTokens(payload) {
+    console.log("JWT Service - Generating tokens for payload:", payload);
+    console.log("JWT Service - Access token secret:", this.accessTokenSecret ? "EXISTS" : "MISSING");
+    console.log("JWT Service - Refresh token secret:", this.refreshTokenSecret ? "EXISTS" : "MISSING");
+    
     const accessToken = this.generateAccessToken(payload);
     const refreshToken = this.generateRefreshToken(payload);
+    
+    console.log("JWT Service - Generated tokens:", {
+      accessToken: accessToken ? "EXISTS" : "MISSING",
+      refreshToken: refreshToken ? "EXISTS" : "MISSING"
+    });
     
     return {
       accessToken,

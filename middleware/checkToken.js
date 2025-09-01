@@ -1,64 +1,63 @@
-const jwtService = require('../service/jwtService');
-const User = require('../model/User');
+const jwtService = require("../service/jwtService");
+const User = require("../model/User");
 
 class AuthMiddleware {
   // Verify JWT token and attach user to request
   authenticateToken = async (req, res, next) => {
     try {
-      const authHeader = req.headers.authorization;
-      const token = authHeader && authHeader.split(' ')[1]; // Bearer TOKEN
+      const authHeader = req.headers.Authorization;
+      const token =
+        (authHeader && authHeader.startsWith("Bearer ")
+          ? authHeader.split(" ")[1]
+          : null) || req.cookies?.accessToken;
+
+      // Debug logging
+      console.log("Auth Header:", authHeader);
+      console.log("Cookies:", req.cookies);
+      console.log("Extracted Token:", token);
 
       if (!token) {
         return res.status(401).json({
           success: false,
-          message: 'Access token is required',
-          code: 'MISSING_TOKEN'
+          message: "Access token is required",
+          code: "MISSING_TOKEN",
         });
       }
 
-      // Verify token
+      // Verify token (this should handle expiry internally)
       const decoded = jwtService.verifyAccessToken(token);
-      
-      // Check if token is expired
-      if (jwtService.isTokenExpired(token)) {
-        return res.status(401).json({
-          success: false,
-          message: 'Token has expired',
-          code: 'TOKEN_EXPIRED'
-        });
-      }
 
       // Attach user info to request
       req.user = {
         id: decoded.id,
         email: decoded.email,
-        role: decoded.role
+        role: decoded.role,
       };
 
-      next();
+      return next();
     } catch (error) {
-      console.error('Token verification error:', error.message);
-      
-      if (error.message === 'Invalid access token') {
+      console.error("Token verification error:", error.message);
+
+      if (error.name === "TokenExpiredError") {
         return res.status(401).json({
           success: false,
-          message: 'Invalid or malformed token',
-          code: 'INVALID_TOKEN'
+          message: "Token has expired",
+          code: "TOKEN_EXPIRED",
         });
       }
 
-      if (error.name === 'TokenExpiredError') {
+      if (error.name === "JsonWebTokenError") {
         return res.status(401).json({
           success: false,
-          message: 'Token has expired',
-          code: 'TOKEN_EXPIRED'
+          message: "Invalid or malformed token",
+          code: "INVALID_TOKEN",
         });
       }
 
       return res.status(500).json({
         success: false,
-        message: 'Internal server error during authentication',
-        code: 'AUTH_ERROR'
+        message: "Internal server error during authentication",
+        code: "AUTH_ERROR",
       });
     }
   };
@@ -67,7 +66,7 @@ class AuthMiddleware {
   optionalAuth = async (req, res, next) => {
     try {
       const authHeader = req.headers.authorization;
-      const token = authHeader && authHeader.split(' ')[1];
+      const token = authHeader && authHeader.split(" ")[1];
 
       if (token) {
         try {
@@ -75,11 +74,11 @@ class AuthMiddleware {
           req.user = {
             id: decoded.id,
             email: decoded.email,
-            role: decoded.role
+            role: decoded.role,
           };
         } catch (error) {
           // Token is invalid but we don't fail the request
-          console.warn('Invalid token in optional auth:', error.message);
+          console.warn("Invalid token in optional auth:", error.message);
         }
       }
 
@@ -95,8 +94,8 @@ class AuthMiddleware {
       if (!req.user) {
         return res.status(401).json({
           success: false,
-          message: 'Authentication required',
-          code: 'AUTH_REQUIRED'
+          message: "Authentication required",
+          code: "AUTH_REQUIRED",
         });
       }
 
@@ -106,8 +105,8 @@ class AuthMiddleware {
       if (!allowedRoles.includes(userRole)) {
         return res.status(403).json({
           success: false,
-          message: 'Insufficient permissions',
-          code: 'INSUFFICIENT_PERMISSIONS'
+          message: "Insufficient permissions",
+          code: "INSUFFICIENT_PERMISSIONS",
         });
       }
 
@@ -130,10 +129,10 @@ class AuthMiddleware {
     // This would typically be implemented with a rate limiting library
     // For now, we'll add a basic check
     const clientIP = req.ip || req.connection.remoteAddress;
-    
+
     // You can implement more sophisticated rate limiting here
     // For example, using Redis to track attempts per IP
-    
+
     next();
   };
 
@@ -145,31 +144,31 @@ class AuthMiddleware {
       if (!refreshToken) {
         return res.status(400).json({
           success: false,
-          message: 'Refresh token is required',
-          code: 'MISSING_REFRESH_TOKEN'
+          message: "Refresh token is required",
+          code: "MISSING_REFRESH_TOKEN",
         });
       }
 
       const decoded = jwtService.verifyRefreshToken(refreshToken);
-      
+
       // Check if token is expired
       if (jwtService.isTokenExpired(refreshToken)) {
         return res.status(401).json({
           success: false,
-          message: 'Refresh token has expired',
-          code: 'REFRESH_TOKEN_EXPIRED'
+          message: "Refresh token has expired",
+          code: "REFRESH_TOKEN_EXPIRED",
         });
       }
 
       req.refreshTokenData = decoded;
       next();
     } catch (error) {
-      console.error('Refresh token validation error:', error.message);
-      
+      console.error("Refresh token validation error:", error.message);
+
       return res.status(401).json({
         success: false,
-        message: 'Invalid refresh token',
-        code: 'INVALID_REFRESH_TOKEN'
+        message: "Invalid refresh token",
+        code: "INVALID_REFRESH_TOKEN",
       });
     }
   };
@@ -177,10 +176,12 @@ class AuthMiddleware {
   // Log authentication attempts
   logAuthAttempt = (req, res, next) => {
     const clientIP = req.ip || req.connection.remoteAddress;
-    const userAgent = req.get('User-Agent');
+    const userAgent = req.get("User-Agent");
     const timestamp = new Date().toISOString();
 
-    console.log(`[AUTH] ${timestamp} - IP: ${clientIP} - User-Agent: ${userAgent} - Endpoint: ${req.method} ${req.path}`);
+    console.log(
+      `[AUTH] ${timestamp} - IP: ${clientIP} - User-Agent: ${userAgent} - Endpoint: ${req.method} ${req.path}`
+    );
 
     next();
   };
@@ -191,20 +192,20 @@ class AuthMiddleware {
       if (!req.user) {
         return res.status(401).json({
           success: false,
-          message: 'Authentication required',
-          code: 'AUTH_REQUIRED'
+          message: "Authentication required",
+          code: "AUTH_REQUIRED",
         });
       }
 
       // You would typically fetch the user from database to check status
       // For now, we'll assume the user is active if they have a valid token
-      
+
       next();
     } catch (error) {
       return res.status(500).json({
         success: false,
-        message: 'Error checking account status',
-        code: 'ACCOUNT_STATUS_ERROR'
+        message: "Error checking account status",
+        code: "ACCOUNT_STATUS_ERROR",
       });
     }
   };

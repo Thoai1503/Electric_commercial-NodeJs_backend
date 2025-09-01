@@ -6,17 +6,17 @@ module.exports = class AuthController {
   constructor(userRepository) {
     this.userRepository = userRepository;
   }
-  
+
   login = async (req, res, next) => {
     const { email, password } = req.body;
-    
+
     try {
       // Input validation
       if (!email || !password) {
         return res.status(400).json({
           success: false,
           message: "Email and password are required",
-          code: "MISSING_CREDENTIALS"
+          code: "MISSING_CREDENTIALS",
         });
       }
 
@@ -26,7 +26,7 @@ module.exports = class AuthController {
         return res.status(400).json({
           success: false,
           message: "Invalid email format",
-          code: "INVALID_EMAIL"
+          code: "INVALID_EMAIL",
         });
       }
 
@@ -36,7 +36,7 @@ module.exports = class AuthController {
         return res.status(401).json({
           success: false,
           message: "Invalid credentials",
-          code: "INVALID_CREDENTIALS"
+          code: "INVALID_CREDENTIALS",
         });
       }
 
@@ -45,7 +45,7 @@ module.exports = class AuthController {
         return res.status(401).json({
           success: false,
           message: "Account is not active",
-          code: "ACCOUNT_INACTIVE"
+          code: "ACCOUNT_INACTIVE",
         });
       }
 
@@ -54,27 +54,27 @@ module.exports = class AuthController {
         return res.status(401).json({
           success: false,
           message: "Invalid credentials",
-          code: "INVALID_CREDENTIALS"
+          code: "INVALID_CREDENTIALS",
         });
       }
 
       this.sendTokenResponse(user, 200, res);
     } catch (error) {
-      console.error('Login error:', error);
+      console.error("Login error:", error);
       next(error);
     }
   };
 
   register = async (req, res, next) => {
     const { name, email, phone, password } = req.body;
-    
+
     try {
       // Input validation
       if (!name || !email || !phone || !password) {
         return res.status(400).json({
           success: false,
           message: "All fields are required",
-          code: "MISSING_FIELDS"
+          code: "MISSING_FIELDS",
         });
       }
 
@@ -84,7 +84,7 @@ module.exports = class AuthController {
         return res.status(400).json({
           success: false,
           message: "Invalid email format",
-          code: "INVALID_EMAIL"
+          code: "INVALID_EMAIL",
         });
       }
 
@@ -94,7 +94,7 @@ module.exports = class AuthController {
         return res.status(400).json({
           success: false,
           message: "Invalid phone number format",
-          code: "INVALID_PHONE"
+          code: "INVALID_PHONE",
         });
       }
 
@@ -105,7 +105,7 @@ module.exports = class AuthController {
           success: false,
           message: "Password does not meet requirements",
           errors: passwordValidation.errors,
-          code: "WEAK_PASSWORD"
+          code: "WEAK_PASSWORD",
         });
       }
 
@@ -115,7 +115,7 @@ module.exports = class AuthController {
         return res.status(409).json({
           success: false,
           message: "User with this email already exists",
-          code: "USER_EXISTS"
+          code: "USER_EXISTS",
         });
       }
 
@@ -127,29 +127,33 @@ module.exports = class AuthController {
       const createdUser = await this.userRepository.createUser(newUser);
       this.sendTokenResponse(createdUser, 201, res);
     } catch (error) {
-      console.error('Registration error:', error);
+      console.error("Registration error:", error);
       next(error);
     }
   };
-
   sendTokenResponse = (user, statusCode, res) => {
     const tokens = user.generateAuthToken();
-    
-    // Set secure HTTP-only cookies
+
     const cookieOptions = {
-      expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Only send over HTTPS in production
-      sameSite: 'strict',
-      path: '/'
+      secure: process.env.NODE_ENV === 'production', // Only secure in production
+      sameSite: "lax",
+      maxAge: 24 * 60 * 60 * 1000, // 24 hours
     };
+
+    // Debug logging
+    console.log("Generated tokens:", {
+      accessToken: tokens.accessToken ? "EXISTS" : "MISSING",
+      refreshToken: tokens.refreshToken ? "EXISTS" : "MISSING",
+      expiresIn: tokens.expiresIn
+    });
 
     res
       .status(statusCode)
-      .cookie('accessToken', tokens.accessToken, cookieOptions)
-      .cookie('refreshToken', tokens.refreshToken, {
+      .cookie("accessToken", tokens.accessToken, cookieOptions)
+      .cookie("refreshToken", tokens.refreshToken, {
         ...cookieOptions,
-        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000) // 7 days
+        expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
       })
       .json({
         success: true,
@@ -161,7 +165,7 @@ module.exports = class AuthController {
           name: user.name,
           email: user.email,
           role: user.role,
-          status: user.status
+          status: user.status,
         },
       });
   };
@@ -170,54 +174,56 @@ module.exports = class AuthController {
   refreshToken = async (req, res, next) => {
     try {
       const { refreshToken } = req.body;
-      
+
       if (!refreshToken) {
         return res.status(400).json({
           success: false,
-          message: 'Refresh token is required',
-          code: 'MISSING_REFRESH_TOKEN'
+          message: "Refresh token is required",
+          code: "MISSING_REFRESH_TOKEN",
         });
       }
 
-      const jwtService = require('../service/jwtService');
+      const jwtService = require("../service/jwtService");
       const decoded = jwtService.verifyRefreshToken(refreshToken);
-      
+
       // Get user from database
       const user = await this.userRepository.getUserById(decoded.id);
       if (!user) {
         return res.status(401).json({
           success: false,
-          message: 'User not found',
-          code: 'USER_NOT_FOUND'
+          message: "User not found",
+          code: "USER_NOT_FOUND",
         });
       }
 
       // Generate new tokens
       const newTokens = user.generateAuthToken();
-      
-      const cookieOptions = {
-        expires: new Date(Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000),
-        httpOnly: true,
-        secure: process.env.NODE_ENV === 'production',
-        sameSite: 'strict',
-        path: '/'
-      };
+
+             const cookieOptions = {
+         expires: new Date(
+           Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+         ),
+         httpOnly: true,
+         secure: process.env.NODE_ENV === 'production', // Only secure in production
+         sameSite: "lax",
+         path: "/",
+       };
 
       res
         .status(200)
-        .cookie('accessToken', newTokens.accessToken, cookieOptions)
-        .cookie('refreshToken', newTokens.refreshToken, {
+        .cookie("accessToken", newTokens.accessToken, cookieOptions)
+        .cookie("refreshToken", newTokens.refreshToken, {
           ...cookieOptions,
-          expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+          expires: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000),
         })
         .json({
           success: true,
           accessToken: newTokens.accessToken,
           refreshToken: newTokens.refreshToken,
-          expiresIn: newTokens.expiresIn
+          expiresIn: newTokens.expiresIn,
         });
     } catch (error) {
-      console.error('Token refresh error:', error);
+      console.error("Token refresh error:", error);
       next(error);
     }
   };
@@ -227,14 +233,14 @@ module.exports = class AuthController {
     try {
       res
         .status(200)
-        .clearCookie('accessToken', { path: '/' })
-        .clearCookie('refreshToken', { path: '/' })
+        .clearCookie("accessToken", { path: "/" })
+        .clearCookie("refreshToken", { path: "/" })
         .json({
           success: true,
-          message: 'Successfully logged out'
+          message: "Successfully logged out",
         });
     } catch (error) {
-      console.error('Logout error:', error);
+      console.error("Logout error:", error);
       next(error);
     }
   };
@@ -243,12 +249,12 @@ module.exports = class AuthController {
   getProfile = async (req, res, next) => {
     try {
       const user = await this.userRepository.getUserById(req.user.id);
-      
+
       if (!user) {
         return res.status(404).json({
           success: false,
-          message: 'User not found',
-          code: 'USER_NOT_FOUND'
+          message: "User not found",
+          code: "USER_NOT_FOUND",
         });
       }
 
@@ -260,11 +266,11 @@ module.exports = class AuthController {
           email: user.email,
           phone: user.phone,
           role: user.role,
-          status: user.status
-        }
+          status: user.status,
+        },
       });
     } catch (error) {
-      console.error('Get profile error:', error);
+      console.error("Get profile error:", error);
       next(error);
     }
   };

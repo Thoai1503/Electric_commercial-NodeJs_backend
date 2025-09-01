@@ -10,7 +10,7 @@ const authRouter = require("./router/auth");
 const userRouter = require("./router/user");
 const brandRouter = require("./router/brand");
 const categoryRouter = require("./router/category");
-
+var cookieParser = require("cookie-parser");
 const cors = require("cors");
 
 const morgan = require("morgan");
@@ -24,6 +24,7 @@ app.use(
     credentials: true, // nếu cần cookie
   })
 );
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
