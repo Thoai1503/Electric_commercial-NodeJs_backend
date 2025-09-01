@@ -5,9 +5,7 @@ const CategoryController = require("../controller/category");
 const categoryController = new CategoryController();
 const authMiddleware = require("../middleware/checkToken");
 
-router
-  .route("/")
-  .post(authMiddleware.authenticateToken, categoryController.create);
+router.route("/").post(categoryController.create);
 router
   .route("/:id")
   .put(categoryController.update)
