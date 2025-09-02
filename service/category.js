@@ -16,8 +16,9 @@ module.exports = class CategoryService {
   };
   updateCategory = async (cate) => {
     try {
+      console.log("Update category id:" + cate.getId());
       const result = await axios.post(
-        this.endPoint + `api/category/${cate?.id}`,
+        this.endPoint + `api/category/${cate.getId()}`,
         cate,
         {
           headers: { "Content-Type": "application/json" },
