@@ -8,7 +8,7 @@ const authMiddleware = require("../middleware/checkToken");
 router.route("/").post(categoryController.create);
 router
   .route("/:id")
-  .put(categoryController.update)
+  .post(categoryController.update)
   .delete(categoryController.delete);
 
 module.exports = router;
