@@ -5,35 +5,33 @@ class AuthMiddleware {
   // Verify JWT token and attach user to request
   authenticateToken = async (req, res, next) => {
     try {
-      const authHeader = req.headers.Authorization;
-      const token =
-        (authHeader && authHeader.startsWith("Bearer ")
-          ? authHeader.split(" ")[1]
-          : null) || req.cookies?.accessToken;
+      // handle either Authorization header (Bearer ...) or cookie named accessToken
+      const authHeader =
+        req.get("Authorization") || req.get("authorization") || "";
+      let token = null;
+      if (authHeader && authHeader.startsWith("Bearer ")) {
+        token = authHeader.split(" ")[1];
+      }
+      if (!token && req.cookies?.accessToken) {
+        token = req.cookies.accessToken;
+      }
 
-      // Debug logging
       console.log("Auth Header:", authHeader);
       console.log("Cookies:", req.cookies);
       console.log("Extracted Token:", token);
 
       if (!token) {
-        return res.status(401).json({
-          success: false,
-          message: "Access token is required",
-          code: "MISSING_TOKEN",
-        });
+        return res
+          .status(401)
+          .json({
+            success: false,
+            message: "Access token is required",
+            code: "MISSING_TOKEN",
+          });
       }
 
-      // Verify token (this should handle expiry internally)
       const decoded = jwtService.verifyAccessToken(token);
-
-      // Attach user info to request
-      req.user = {
-        id: decoded.id,
-        email: decoded.email,
-        role: decoded.role,
-      };
-
+      req.user = { id: decoded.id, email: decoded.email, role: decoded.role };
       return next();
     } catch (error) {
       console.error("Token verification error:", error.message);

@@ -136,7 +136,7 @@ module.exports = class AuthController {
 
     const cookieOptions = {
       httpOnly: true,
-      secure: process.env.NODE_ENV === 'production', // Only secure in production
+      secure: process.env.NODE_ENV === "production", // Only secure in production
       sameSite: "lax",
       maxAge: 24 * 60 * 60 * 1000, // 24 hours
     };
@@ -145,7 +145,7 @@ module.exports = class AuthController {
     console.log("Generated tokens:", {
       accessToken: tokens.accessToken ? "EXISTS" : "MISSING",
       refreshToken: tokens.refreshToken ? "EXISTS" : "MISSING",
-      expiresIn: tokens.expiresIn
+      expiresIn: tokens.expiresIn,
     });
 
     res
@@ -199,15 +199,15 @@ module.exports = class AuthController {
       // Generate new tokens
       const newTokens = user.generateAuthToken();
 
-             const cookieOptions = {
-         expires: new Date(
-           Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
-         ),
-         httpOnly: true,
-         secure: process.env.NODE_ENV === 'production', // Only secure in production
-         sameSite: "lax",
-         path: "/",
-       };
+      const cookieOptions = {
+        expires: new Date(
+          Date.now() + process.env.JWT_COOKIE_EXPIRE * 24 * 60 * 60 * 1000
+        ),
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // Only secure in production
+        sameSite: "lax",
+        path: "/",
+      };
 
       res
         .status(200)
