@@ -5,10 +5,12 @@ const CategoryController = require("../controller/category");
 const categoryController = new CategoryController();
 const authMiddleware = require("../middleware/checkToken");
 
-router.route("/").post(categoryController.create);
+router
+  .route("/")
+  .post(authMiddleware.authenticateToken, categoryController.create);
 router
   .route("/:id")
-  .post(categoryController.update)
+  .post(authMiddleware.authenticateToken, categoryController.update)
   .delete(categoryController.delete);
 
 module.exports = router;
