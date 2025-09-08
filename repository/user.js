@@ -39,7 +39,21 @@ module.exports = class UserRepository {
     const request = pool.request();
     request.input("id", sql.Int, id);
     const result = await request.query("SELECT * FROM users WHERE id = @id");
-    return result.recordset[0];
+    //return result.recordset[0];
+
+    if (result.recordset.length > 0) {
+      const user = result.recordset[0];
+      return new User(
+        user.id,
+        user.name,
+        user.email,
+        user.phone,
+        user.password,
+        user.role,
+        user.status
+      );
+    }
+    return null;
   }
   async createUser(user) {
     const { sql, getPool } = require("../db/MssqlDb");

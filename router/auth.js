@@ -10,11 +10,23 @@ const authController = new AuthController(userRepository);
 
 // Public routes
 router.post("/login", authMiddleware.logAuthAttempt, authController.login);
-router.post("/register", authMiddleware.logAuthAttempt, authController.register);
-router.post("/refresh-token", authMiddleware.validateRefreshToken, authController.refreshToken);
+router.post(
+  "/register",
+  authMiddleware.logAuthAttempt,
+  authController.register
+);
+router.post(
+  "/refresh_token",
+  authMiddleware.validateRefreshToken,
+  authController.refreshToken
+);
 
 // Protected routes
 router.post("/logout", authMiddleware.authenticateToken, authController.logout);
-router.get("/profile", authMiddleware.authenticateToken, authController.getProfile);
+router.get(
+  "/profile",
+  authMiddleware.authenticateToken,
+  authController.getProfile
+);
 
 module.exports = router;
