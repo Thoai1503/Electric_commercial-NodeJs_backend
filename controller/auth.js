@@ -218,6 +218,12 @@ module.exports = class AuthController {
         })
         .json({
           success: true,
+
+          id: user.id,
+          name: user.name,
+          email: user.email,
+          role: user.role,
+
           accessToken: newTokens.accessToken,
           refreshToken: newTokens.refreshToken,
           expiresIn: newTokens.expiresIn,
