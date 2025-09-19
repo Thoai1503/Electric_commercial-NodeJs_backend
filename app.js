@@ -1,11 +1,14 @@
 const dotenv = require("dotenv");
-
+//import multer from "multer";
 dotenv.config({ path: "./config/config.env" });
+const fileUpload = require("express-fileupload");
 const colors = require("colors");
 const express = require("express");
 const connectDB = require("./db/MongoDb");
 const { getPool } = require("./db/MssqlDb");
 const app = express();
+//const upload = multer({ storage: multer.memoryStorage() });
+app.use(fileUpload({ limits: { fileSize: 100 * 1024 * 1024 } }));
 const authRouter = require("./router/auth");
 const userRouter = require("./router/user");
 const brandRouter = require("./router/brand");
@@ -46,6 +49,10 @@ app.use((req, res, next) => {
   console.log("Time:", Date.now());
 
   next();
+});
+app.post("/upload", (req, res, next) => {
+  console.log("Data: " + JSON.stringify(req.files.file));
+  res.json(req.files.file);
 });
 
 const PORT = process.env.PORT || 5000;
