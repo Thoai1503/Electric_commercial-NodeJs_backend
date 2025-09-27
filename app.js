@@ -50,9 +50,34 @@ app.use((req, res, next) => {
 
   next();
 });
-app.post("/upload", (req, res, next) => {
-  console.log("Data: " + JSON.stringify(req.files.file));
-  res.json(req.files.file);
+app.post("/api/upload", (req, res) => {
+  if (!req.files || !req.files.images) {
+    return res.status(400).json({ message: "No files were uploaded." });
+  }
+
+  const files = Array.isArray(req.files.images)
+    ? req.files.images
+    : [req.files.images];
+
+  files.forEach((file) => {
+    const uploadPath = path.join(__dirname, "uploads", Date.now() + file.name);
+
+    file.mv(uploadPath, (err) => {
+      if (err) return res.status(500).json({ error: err.message });
+    });
+  });
+
+  const uploadedFiles = files.map((file) => ({
+    name: file.name,
+    mimetype: file.mimetype,
+    size: file.size,
+  }));
+
+  console.log("Data:", uploadedFiles);
+  res.json({
+    message: "Upload thành công!",
+    files: uploadedFiles,
+  });
 });
 
 const PORT = process.env.PORT || 5000;
