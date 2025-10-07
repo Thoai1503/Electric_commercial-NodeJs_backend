@@ -36,6 +36,9 @@ app.use("/api/v1/auth", authRouter);
 app.use("/api/v1/user", userRouter);
 app.use("/api/v1/brand", brandRouter);
 app.use("/api/v1/category", categoryRouter);
+const VNPayPaymentRouter = require("./router/VNPay_payment");
+app.use("/api/v1/payment", VNPayPaymentRouter);
+app.use("/api/v1/momo-payment", require("./router/MOMO_payment"));
 
 getPool()
   .then(() => {
